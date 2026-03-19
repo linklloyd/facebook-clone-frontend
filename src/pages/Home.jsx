@@ -1,0 +1,155 @@
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { FaUserFriends, FaFacebookMessenger, FaBookmark, FaUsers, FaBolt, FaStore } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
+import { useSocket } from "../context/SocketContext";
+import CreatePost from "../components/CreatePost";
+import Post from "../components/Post";
+import Stories from "../components/Stories";
+import api from "../utils/api";
+
+export default function Home() {
+  const { user } = useAuth();
+  const { onlineUsers } = useSocket();
+  const [posts, setPosts] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [suggestions, setSuggestions] = useState([]);
+
+  useEffect(() => {
+    loadPosts(1);
+    api.get("/users/suggestions/people").then((r) => setSuggestions(r.data));
+  }, []);
+
+  const loadPosts = async (p) => {
+    try {
+      const res = await api.get(`/posts/feed?page=${p}`);
+      if (p === 1) {
+        setPosts(res.data);
+      } else {
+        setPosts((prev) => [...prev, ...res.data]);
+      }
+      setHasMore(res.data.length === 10);
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
+  };
+
+  const handlePostCreated = (post) => {
+    setPosts([{ ...post, comments: [] }, ...posts]);
+  };
+
+  const handleDelete = (postId) => {
+    setPosts(posts.filter((p) => p._id !== postId));
+  };
+
+  const onlineFriends = user?.friends?.filter((f) =>
+    onlineUsers.includes(f._id)
+  ) || [];
+
+  return (
+    <div className="home-page">
+      <div className="home-left">
+        <Link to={`/profile/${user?._id}`} className="sidebar-item">
+          <img
+            src={user?.profilePicture || "/default-avatar.svg"}
+            alt=""
+            className="avatar-small"
+          />
+          <span>{user?.firstName} {user?.lastName}</span>
+        </Link>
+        <Link to="/friends" className="sidebar-item">
+          <FaUserFriends className="sidebar-icon" />
+          <span>Friends</span>
+        </Link>
+        <Link to="/messenger" className="sidebar-item">
+          <FaFacebookMessenger className="sidebar-icon" />
+          <span>Messenger</span>
+        </Link>
+        <Link to="/friends" className="sidebar-item">
+          <FaUsers className="sidebar-icon" />
+          <span>Find Friends</span>
+        </Link>
+        <Link to="/activity" className="sidebar-item">
+          <FaBolt className="sidebar-icon" />
+          <span>Activity Feed</span>
+        </Link>
+        <Link to="/marketplace" className="sidebar-item">
+          <FaStore className="sidebar-icon" />
+          <span>Marketplace</span>
+        </Link>
+      </div>
+
+      <div className="home-center">
+        <Stories />
+        <CreatePost onPostCreated={handlePostCreated} />
+        {loading ? (
+          <div className="loading-spinner">Loading...</div>
+        ) : posts.length === 0 ? (
+          <div className="empty-feed">
+            <h3>Welcome to Tlacobook!</h3>
+            <p>Add friends to see their posts in your feed.</p>
+          </div>
+        ) : (
+          <>
+            {posts.map((post) => (
+              <Post key={post._id} post={post} onDelete={handleDelete} />
+            ))}
+            {hasMore && (
+              <button
+                className="load-more"
+                onClick={() => {
+                  const next = page + 1;
+                  setPage(next);
+                  loadPosts(next);
+                }}
+              >
+                Load more
+              </button>
+            )}
+          </>
+        )}
+      </div>
+
+      <div className="home-right">
+        {suggestions.length > 0 && (
+          <div className="sidebar-section">
+            <h4>People you may know</h4>
+            {suggestions.map((s) => (
+              <Link key={s._id} to={`/profile/${s._id}`} className="suggestion-item">
+                <img
+                  src={s.profilePicture || "/default-avatar.svg"}
+                  alt=""
+                  className="avatar-small"
+                />
+                <span>{s.firstName} {s.lastName}</span>
+              </Link>
+            ))}
+          </div>
+        )}
+        <div className="sidebar-section">
+          <h4>Contacts</h4>
+          {onlineFriends.length === 0 ? (
+            <p className="empty-text">No friends online</p>
+          ) : (
+            onlineFriends.map((f) => (
+              <Link key={f._id} to={`/profile/${f._id}`} className="contact-item">
+                <div className="contact-avatar">
+                  <img
+                    src={f.profilePicture || "/default-avatar.svg"}
+                    alt=""
+                    className="avatar-small"
+                  />
+                  <span className="online-dot" />
+                </div>
+                <span>{f.firstName} {f.lastName}</span>
+              </Link>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
