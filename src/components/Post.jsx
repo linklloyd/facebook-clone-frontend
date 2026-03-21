@@ -14,6 +14,7 @@ function useLock() {
 }
 import { format } from "timeago.js";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import MentionInput from "./MentionInput";
 import renderMentions from "../utils/renderMentions";
 import api from "../utils/api";
@@ -320,6 +321,7 @@ function ImageLightbox({ images, startIdx, onClose }) {
 export default function Post({ post, onDelete, onPin, isPinned, initialShowComments }) {
   const guard = useLock();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [reactions, setReactions] = useState(post.reactions || []);
   const [comments, setComments] = useState(post.comments || []);
   const [commentText, setCommentText] = useState("");
@@ -415,6 +417,19 @@ export default function Post({ post, onDelete, onPin, isPinned, initialShowComme
     }
   });
 
+  // Poll state
+  const [pollData, setPollData] = useState(post.poll || null);
+
+  const handleVote = guard(async (optionIndex) => {
+    try {
+      const res = await api.put(`/posts/${post._id}/poll/vote`, { optionIndex });
+      setPollData(res.data.poll);
+    } catch (err) {
+      console.error(err);
+      if (err.response?.data?.message) alert(err.response.data.message);
+    }
+  });
+
   return (
     <div className={`post-card ${isPinned ? "pinned-post" : ""}`}>
       {isPinned && (
@@ -447,6 +462,64 @@ export default function Post({ post, onDelete, onPin, isPinned, initialShowComme
 
       {post.text && <p className="post-text">{renderMentions(post.text)}</p>}
       <PostMedia images={post.images} fallbackImage={post.image} mediaTypes={post.mediaTypes} />
+
+      {/* Poll display */}
+      {pollData?.question && (() => {
+        const totalVotes = pollData.options.reduce((sum, opt) => sum + (opt.votes?.length || 0), 0);
+        const myVotes = pollData.options.map((opt) =>
+          opt.votes?.some((v) => (v._id || v).toString() === user?._id)
+        );
+        const hasVoted = myVotes.some(Boolean);
+        const isExpired = pollData.endsAt && new Date() > new Date(pollData.endsAt);
+
+        return (
+          <div className="poll-container">
+            <h4 className="poll-question">{pollData.question}</h4>
+            <div className="poll-options">
+              {pollData.options.map((opt, i) => {
+                const voteCount = opt.votes?.length || 0;
+                const pct = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0;
+                const isMyVote = myVotes[i];
+
+                return (
+                  <button
+                    key={i}
+                    className={`poll-option-btn ${isMyVote ? "voted" : ""} ${hasVoted || isExpired ? "show-results" : ""}`}
+                    onClick={() => !isExpired && handleVote(i)}
+                    disabled={isExpired}
+                  >
+                    {(hasVoted || isExpired) && (
+                      <div className="poll-bar" style={{ width: `${pct}%` }} />
+                    )}
+                    <span className="poll-option-text">{opt.text}</span>
+                    {(hasVoted || isExpired) && (
+                      <span className="poll-option-pct">{pct}%</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="poll-footer">
+              <span>{totalVotes} {totalVotes === 1 ? t("vote") : t("votes")}</span>
+              {pollData.endsAt && (
+                <span>
+                  {isExpired
+                    ? t("pollEnded")
+                    : `${t("pollEndsIn")} ${(() => {
+                        const diff = new Date(pollData.endsAt) - new Date();
+                        const h = Math.floor(diff / 3600000);
+                        if (h >= 24) return `${Math.floor(h / 24)}d`;
+                        if (h > 0) return `${h}h`;
+                        return `${Math.max(1, Math.floor(diff / 60000))}m`;
+                      })()}`
+                  }
+                </span>
+              )}
+              {pollData.multipleChoice && <span>{t("multipleChoice")}</span>}
+            </div>
+          </div>
+        );
+      })()}
 
       <div className="post-stats">
         {reactions.length > 0 && (

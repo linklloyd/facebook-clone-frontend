@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from "react";
-import { FaPhotoVideo, FaSmile, FaTimes, FaGripVertical, FaPlay, FaSpinner } from "react-icons/fa";
+import { FaPhotoVideo, FaSmile, FaTimes, FaGripVertical, FaPlay, FaSpinner, FaPoll } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import MentionInput from "./MentionInput";
 import api from "../utils/api";
 import { compressImage } from "../utils/imageUtils";
@@ -12,11 +13,18 @@ const FEELINGS = [
 
 export default function CreatePost({ onPostCreated, onPostingChange }) {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [text, setText] = useState("");
   const [media, setMedia] = useState([]); // [{ id, file, preview, type: 'image'|'video' }]
   const [feeling, setFeeling] = useState("");
   const [showFeelings, setShowFeelings] = useState(false);
   const [loading, setLoading] = useState(false);
+  // Poll state
+  const [showPoll, setShowPoll] = useState(false);
+  const [pollQuestion, setPollQuestion] = useState("");
+  const [pollOptions, setPollOptions] = useState(["", ""]);
+  const [pollDuration, setPollDuration] = useState("24");
+  const [pollMultiple, setPollMultiple] = useState(false);
   const [draggedIdx, setDraggedIdx] = useState(null);
   const [dragOverIdx, setDragOverIdx] = useState(null);
   const fileRef = useRef();
@@ -128,9 +136,11 @@ export default function CreatePost({ onPostCreated, onPostingChange }) {
     setTouchDragIdx(null);
   };
 
+  const hasPoll = showPoll && pollQuestion.trim() && pollOptions.filter((o) => o.trim()).length >= 2;
+
   const handleSubmit = async () => {
-    if (loading) return; // Prevent double-click
-    if (!text.trim() && media.length === 0) return;
+    if (loading) return;
+    if (!text.trim() && media.length === 0 && !hasPoll) return;
     setLoading(true);
     onPostingChange?.(true);
     try {
@@ -139,12 +149,24 @@ export default function CreatePost({ onPostCreated, onPostingChange }) {
       if (feeling) formData.append("feeling", feeling);
       media.forEach((m) => formData.append("media", m.file));
       formData.append("mediaTypes", JSON.stringify(media.map((m) => m.type)));
+      // Poll data
+      if (hasPoll) {
+        formData.append("pollQuestion", pollQuestion);
+        formData.append("pollOptions", JSON.stringify(pollOptions.filter((o) => o.trim())));
+        formData.append("pollDuration", pollDuration);
+        formData.append("pollMultiple", pollMultiple);
+      }
       const res = await api.post("/posts", formData);
       onPostCreated(res.data);
       setText("");
       media.forEach((m) => URL.revokeObjectURL(m.preview));
       setMedia([]);
       setFeeling("");
+      setShowPoll(false);
+      setPollQuestion("");
+      setPollOptions(["", ""]);
+      setPollDuration("24");
+      setPollMultiple(false);
     } catch (err) {
       console.error(err);
     }
@@ -217,10 +239,74 @@ export default function CreatePost({ onPostCreated, onPostingChange }) {
         </div>
       )}
 
+      {/* Poll creator */}
+      {showPoll && (
+        <div className="poll-creator">
+          <div className="poll-creator-header">
+            <h4>{t("createPoll")}</h4>
+            <button onClick={() => { setShowPoll(false); setPollQuestion(""); setPollOptions(["", ""]); }}>
+              <FaTimes />
+            </button>
+          </div>
+          <input
+            className="poll-question-input"
+            placeholder={t("pollQuestion")}
+            value={pollQuestion}
+            onChange={(e) => setPollQuestion(e.target.value)}
+          />
+          {pollOptions.map((opt, i) => (
+            <div key={i} className="poll-option-row">
+              <input
+                className="poll-option-input"
+                placeholder={`${t("pollOption")} ${i + 1}`}
+                value={opt}
+                onChange={(e) => {
+                  const newOpts = [...pollOptions];
+                  newOpts[i] = e.target.value;
+                  setPollOptions(newOpts);
+                }}
+              />
+              {pollOptions.length > 2 && (
+                <button
+                  className="poll-remove-option"
+                  onClick={() => setPollOptions(pollOptions.filter((_, j) => j !== i))}
+                >
+                  <FaTimes />
+                </button>
+              )}
+            </div>
+          ))}
+          {pollOptions.length < 6 && (
+            <button className="poll-add-option" onClick={() => setPollOptions([...pollOptions, ""])}>
+              + {t("addOption")}
+            </button>
+          )}
+          <div className="poll-settings">
+            <select value={pollDuration} onChange={(e) => setPollDuration(e.target.value)}>
+              <option value="1">1 {t("hour")}</option>
+              <option value="6">6 {t("hours")}</option>
+              <option value="12">12 {t("hours")}</option>
+              <option value="24">1 {t("day")}</option>
+              <option value="72">3 {t("days")}</option>
+              <option value="168">7 {t("days")}</option>
+              <option value="0">{t("neverEnds")}</option>
+            </select>
+            <label className="poll-multiple-label">
+              <input
+                type="checkbox"
+                checked={pollMultiple}
+                onChange={(e) => setPollMultiple(e.target.checked)}
+              />
+              {t("multipleChoice")}
+            </label>
+          </div>
+        </div>
+      )}
+
       <hr />
       <div className="create-post-bottom">
         <button className="post-action" onClick={() => fileRef.current.click()}>
-          <FaPhotoVideo color="#45bd62" /> Media
+          <FaPhotoVideo color="#45bd62" /> {t("media")}
         </button>
         <input
           ref={fileRef}
@@ -234,14 +320,20 @@ export default function CreatePost({ onPostCreated, onPostingChange }) {
           className="post-action"
           onClick={() => setShowFeelings(!showFeelings)}
         >
-          <FaSmile color="#f7b928" /> Feeling
+          <FaSmile color="#f7b928" /> {t("feeling")}
+        </button>
+        <button
+          className="post-action"
+          onClick={() => setShowPoll(!showPoll)}
+        >
+          <FaPoll color="#e74c3c" /> {t("poll")}
         </button>
         <button
           className="post-submit"
           onClick={handleSubmit}
-          disabled={loading || (!text.trim() && media.length === 0)}
+          disabled={loading || (!text.trim() && media.length === 0 && !hasPoll)}
         >
-          {loading ? <><FaSpinner className="spinner" /> Posting...</> : "Post"}
+          {loading ? <><FaSpinner className="spinner" /> {t("posting")}</> : t("post")}
         </button>
       </div>
       {showFeelings && (

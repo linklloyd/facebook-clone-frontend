@@ -89,6 +89,23 @@ const translations = {
     publicProfile: "Public",
     privateProfileLabel: "Private",
 
+    // Polls
+    poll: "Poll",
+    createPoll: "Create a Poll",
+    pollQuestion: "Ask a question...",
+    pollOption: "Option",
+    addOption: "Add option",
+    hour: "hour",
+    hours: "hours",
+    day: "day",
+    days: "days",
+    neverEnds: "No time limit",
+    multipleChoice: "Multiple choice",
+    vote: "vote",
+    votes: "votes",
+    pollEnded: "Poll ended",
+    pollEndsIn: "Ends in",
+
     // Messenger
     chats: "Chats",
     newChat: "New Chat",
@@ -280,6 +297,23 @@ const translations = {
     profilePrivacy: "Privacidad del Perfil",
     publicProfile: "Público",
     privateProfileLabel: "Privado",
+
+    // Polls
+    poll: "Encuesta",
+    createPoll: "Crear Encuesta",
+    pollQuestion: "Haz una pregunta...",
+    pollOption: "Opción",
+    addOption: "Agregar opción",
+    hour: "hora",
+    hours: "horas",
+    day: "día",
+    days: "días",
+    neverEnds: "Sin límite de tiempo",
+    multipleChoice: "Opción múltiple",
+    vote: "voto",
+    votes: "votos",
+    pollEnded: "Encuesta terminada",
+    pollEndsIn: "Termina en",
 
     // Messenger
     chats: "Chats",

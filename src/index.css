@@ -1106,6 +1106,215 @@ html.dark .lang-btn.active {
   white-space: pre-wrap;
 }
 
+/* ===== POLLS ===== */
+/* Poll Creator in CreatePost */
+.poll-creator {
+  border: 1px solid #ced0d4;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 0 16px 12px;
+}
+.poll-creator-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.poll-creator-header h4 {
+  margin: 0;
+  font-size: 16px;
+}
+.poll-creator-header button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #65676b;
+  padding: 4px;
+}
+.poll-question-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ced0d4;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  outline: none;
+  box-sizing: border-box;
+}
+.poll-question-input:focus {
+  border-color: #1877f2;
+}
+.poll-option-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.poll-option-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ced0d4;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+}
+.poll-option-input:focus {
+  border-color: #1877f2;
+}
+.poll-remove-option {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #65676b;
+  padding: 4px;
+  font-size: 12px;
+}
+.poll-add-option {
+  background: none;
+  border: none;
+  color: #1877f2;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 6px 0;
+}
+.poll-settings {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.poll-settings select {
+  padding: 6px 10px;
+  border: 1px solid #ced0d4;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+}
+.poll-multiple-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #65676b;
+  cursor: pointer;
+}
+
+/* Poll Display in Post */
+.poll-container {
+  padding: 12px 16px;
+}
+.poll-question {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+.poll-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.poll-option-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border: 2px solid #e4e6eb;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+.poll-option-btn:hover:not(:disabled) {
+  border-color: #1877f2;
+  background: #f0f7ff;
+}
+.poll-option-btn.voted {
+  border-color: #1877f2;
+}
+.poll-option-btn:disabled {
+  cursor: default;
+  opacity: 0.8;
+}
+.poll-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: rgba(24, 119, 242, 0.12);
+  border-radius: 6px;
+  transition: width 0.4s ease;
+  z-index: 0;
+}
+.poll-option-btn.voted .poll-bar {
+  background: rgba(24, 119, 242, 0.2);
+}
+.poll-option-text {
+  position: relative;
+  z-index: 1;
+}
+.poll-option-pct {
+  position: relative;
+  z-index: 1;
+  font-weight: 700;
+  color: #1877f2;
+  font-size: 14px;
+}
+.poll-footer {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #65676b;
+}
+
+/* Dark mode polls */
+html.dark .poll-creator {
+  border-color: var(--border);
+}
+html.dark .poll-question-input,
+html.dark .poll-option-input {
+  background: var(--input-bg);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+html.dark .poll-settings select {
+  background: var(--input-bg);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+html.dark .poll-question {
+  color: var(--text-primary);
+}
+html.dark .poll-option-btn {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+html.dark .poll-option-btn:hover:not(:disabled) {
+  border-color: #1877f2;
+  background: rgba(24, 119, 242, 0.1);
+}
+html.dark .poll-option-btn.voted {
+  border-color: #1877f2;
+}
+html.dark .poll-bar {
+  background: rgba(24, 119, 242, 0.15);
+}
+html.dark .poll-option-btn.voted .poll-bar {
+  background: rgba(24, 119, 242, 0.25);
+}
+html.dark .poll-footer {
+  color: var(--text-secondary);
+}
+
 .post-image {
   width: 100%;
   max-height: 600px;
