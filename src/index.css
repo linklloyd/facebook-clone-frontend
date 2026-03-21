@@ -1506,15 +1506,31 @@ html.dark .btn-pending {
   min-height: 80px;
 }
 
-/* Story Create Modal */
+.file-upload-btn {
+  padding: 8px 16px;
+  background: #e4e6eb;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+.file-upload-btn:hover {
+  background: #d8dadf;
+}
+
+/* Story Creator — customization */
 .story-create-modal {
   width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .story-preview {
   height: 300px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   justify-content: center;
   color: #fff;
   font-size: 24px;
@@ -1526,6 +1542,137 @@ html.dark .btn-pending {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.story-preview-live-text {
+  padding: 16px 12px;
+  word-break: break-word;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  z-index: 2;
+}
+
+.story-remove-img {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+  font-size: 14px;
+  border: none;
+}
+
+.story-customize-tabs {
+  display: flex;
+  border-bottom: 1px solid #ced0d4;
+}
+.story-customize-tabs button {
+  flex: 1;
+  padding: 10px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: #65676b;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+.story-customize-tabs button.active {
+  color: #1877f2;
+  border-bottom-color: #1877f2;
+}
+
+.story-customize-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.story-customize-section label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #65676b;
+}
+
+.color-picker {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.color-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.color-btn:hover {
+  transform: scale(1.15);
+}
+.color-btn.selected {
+  border-color: #050505;
+}
+.color-btn.gradient-btn {
+  border-radius: 8px;
+}
+
+.story-btn-group {
+  display: flex;
+  gap: 4px;
+}
+.story-btn-group button {
+  padding: 6px 14px;
+  border: 1px solid #ced0d4;
+  border-radius: 6px;
+  background: #f0f2f5;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #050505;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.15s;
+}
+.story-btn-group button.active {
+  background: #1877f2;
+  color: #fff;
+  border-color: #1877f2;
+}
+.story-btn-group button:hover:not(.active) {
+  background: #e4e6eb;
+}
+
+.story-font-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.story-font-btn {
+  padding: 8px 14px;
+  border: 1px solid #ced0d4;
+  border-radius: 8px;
+  background: #f0f2f5;
+  cursor: pointer;
+  font-size: 15px;
+  transition: all 0.15s;
+}
+.story-font-btn.active {
+  background: #1877f2;
+  color: #fff;
+  border-color: #1877f2;
+}
+.story-font-btn:hover:not(.active) {
+  background: #e4e6eb;
 }
 
 .story-form {
@@ -1541,34 +1688,7 @@ html.dark .btn-pending {
   font-size: 15px;
   resize: none;
   outline: none;
-}
-
-.color-picker {
-  display: flex;
-  gap: 8px;
-}
-.color-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 3px solid transparent;
-  cursor: pointer;
-}
-.color-btn.selected {
-  border-color: #050505;
-}
-
-.file-upload-btn {
-  padding: 8px 16px;
-  background: #e4e6eb;
-  border-radius: 6px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  text-align: center;
-}
-.file-upload-btn:hover {
-  background: #d8dadf;
+  min-height: 60px;
 }
 
 /* Story Viewer */
@@ -1638,7 +1758,8 @@ html.dark .btn-pending {
   background-size: cover;
   background-position: center;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   justify-content: center;
 }
 
@@ -1649,6 +1770,7 @@ html.dark .btn-pending {
   text-align: center;
   padding: 20px;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  word-break: break-word;
 }
 
 .story-nav {
@@ -4043,6 +4165,44 @@ html.dark .story-form textarea {
 }
 html.dark .story-preview {
   background: var(--surface2);
+}
+html.dark .story-customize-tabs {
+  border-color: var(--border);
+}
+html.dark .story-customize-tabs button {
+  color: var(--text-secondary);
+}
+html.dark .story-customize-tabs button.active {
+  color: #1877f2;
+}
+html.dark .story-customize-section label {
+  color: var(--text-secondary);
+}
+html.dark .story-btn-group button {
+  background: var(--surface2);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+html.dark .story-btn-group button.active {
+  background: #1877f2;
+  color: #fff;
+  border-color: #1877f2;
+}
+html.dark .story-font-btn {
+  background: var(--surface2);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+html.dark .story-font-btn.active {
+  background: #1877f2;
+  color: #fff;
+}
+html.dark .file-upload-btn {
+  background: var(--surface2);
+  color: var(--text-primary);
+}
+html.dark .file-upload-btn:hover {
+  background: var(--hover);
 }
 
 /* Profile extras dark */

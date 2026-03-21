@@ -3,6 +3,7 @@ import { FaPhotoVideo, FaSmile, FaTimes, FaGripVertical, FaPlay } from "react-ic
 import { useAuth } from "../context/AuthContext";
 import MentionInput from "./MentionInput";
 import api from "../utils/api";
+import { compressImage } from "../utils/imageUtils";
 
 const FEELINGS = [
   "happy", "sad", "loved", "excited", "angry",
@@ -22,40 +23,6 @@ export default function CreatePost({ onPostCreated }) {
   let idCounter = useRef(0);
 
   const MAX_VIDEO_SIZE = 10 * 1024 * 1024; // 10 MB
-  const IMG_MAX_DIM = 1600; // Max width/height for compressed images
-  const IMG_QUALITY = 0.8;  // JPEG quality
-
-  // Compress an image file using canvas, returns a new smaller File
-  const compressImage = (file) =>
-    new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        let { width, height } = img;
-        // Scale down if larger than max dimension
-        if (width > IMG_MAX_DIM || height > IMG_MAX_DIM) {
-          const ratio = Math.min(IMG_MAX_DIM / width, IMG_MAX_DIM / height);
-          width = Math.round(width * ratio);
-          height = Math.round(height * ratio);
-        }
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, width, height);
-        canvas.toBlob(
-          (blob) => {
-            const compressed = new File([blob], file.name, {
-              type: "image/jpeg",
-              lastModified: Date.now(),
-            });
-            resolve(compressed);
-          },
-          "image/jpeg",
-          IMG_QUALITY
-        );
-      };
-      img.src = URL.createObjectURL(file);
-    });
 
   const handleMediaChange = async (e) => {
     const files = Array.from(e.target.files);
@@ -77,19 +44,22 @@ export default function CreatePost({ onPostCreated }) {
           type: "video",
         });
       } else {
-        // Compress images automatically — no size limit needed
-        const compressed = await compressImage(file);
-        accepted.push({
-          id: `media-${Date.now()}-${idCounter.current++}`,
-          file: compressed,
-          preview: URL.createObjectURL(compressed),
-          type: "image",
-        });
+        try {
+          const compressed = await compressImage(file);
+          accepted.push({
+            id: `media-${Date.now()}-${idCounter.current++}`,
+            file: compressed,
+            preview: URL.createObjectURL(compressed),
+            type: "image",
+          });
+        } catch (err) {
+          rejected.push(`${file.name} (${err.message})`);
+        }
       }
     }
 
     if (rejected.length > 0) {
-      alert(`These files are too large and were skipped:\n${rejected.join("\n")}`);
+      alert(`These files were skipped:\n${rejected.join("\n")}`);
     }
     if (accepted.length > 0) {
       setMedia((prev) => [...prev, ...accepted]);

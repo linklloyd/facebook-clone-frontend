@@ -5,10 +5,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      "/api": "http://localhost:5001",
-      "/uploads": "http://localhost:5001",
+      "/api": "http://localhost:5002",
+      "/uploads": "http://localhost:5002",
       "/socket.io": {
-        target: "http://localhost:5001",
+        target: "http://localhost:5002",
         ws: true,
       },
     },

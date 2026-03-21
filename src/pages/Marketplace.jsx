@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import api from "../utils/api";
+import { compressImage } from "../utils/imageUtils";
 
 const CATEGORIES = [
   "All",
@@ -25,36 +26,6 @@ const CATEGORIES = [
 ];
 
 const CONDITIONS = ["New", "Like New", "Good", "Used"];
-
-const IMG_MAX_DIM = 1600;
-const IMG_QUALITY = 0.8;
-
-function compressImage(file) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      let { width, height } = img;
-      if (width > IMG_MAX_DIM || height > IMG_MAX_DIM) {
-        const ratio = Math.min(IMG_MAX_DIM / width, IMG_MAX_DIM / height);
-        width = Math.round(width * ratio);
-        height = Math.round(height * ratio);
-      }
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
-      canvas.getContext("2d").drawImage(img, 0, 0, width, height);
-      canvas.toBlob(
-        (blob) =>
-          resolve(
-            new File([blob], file.name, { type: "image/jpeg", lastModified: Date.now() })
-          ),
-        "image/jpeg",
-        IMG_QUALITY
-      );
-    };
-    img.src = URL.createObjectURL(file);
-  });
-}
 
 export default function Marketplace() {
   const { user } = useAuth();
@@ -340,9 +311,17 @@ function CreateListingModal({ onClose, onCreated }) {
   const handleFiles = async (e) => {
     const files = Array.from(e.target.files);
     const compressed = [];
+    const errors = [];
     for (const f of files) {
-      const c = await compressImage(f);
-      compressed.push({ file: c, preview: URL.createObjectURL(c) });
+      try {
+        const c = await compressImage(f);
+        compressed.push({ file: c, preview: URL.createObjectURL(c) });
+      } catch (err) {
+        errors.push(`${f.name}: ${err.message}`);
+      }
+    }
+    if (errors.length > 0) {
+      alert(`Some images couldn't be processed:\n${errors.join("\n")}`);
     }
     setImages((prev) => [...prev, ...compressed].slice(0, 5));
     e.target.value = "";
