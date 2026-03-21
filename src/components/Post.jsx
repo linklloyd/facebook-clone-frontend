@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { FaComment, FaTrash, FaThumbtack, FaReply, FaChevronLeft, FaChevronRight, FaTimes } from "react-icons/fa";
+import { FaComment, FaTrash, FaThumbtack, FaReply, FaChevronLeft, FaChevronRight, FaTimes, FaPaperPlane } from "react-icons/fa";
 import { format } from "timeago.js";
 import { useAuth } from "../context/AuthContext";
 import MentionInput from "./MentionInput";
@@ -182,6 +182,14 @@ function CommentItem({ c, postId, user, isReply, onDelete, onUpdate }) {
               onSubmit={handleReply}
               autoFocus
             />
+            <button
+              className="comment-send-btn"
+              onClick={handleReply}
+              disabled={!replyText.trim()}
+              title="Send"
+            >
+              <FaPaperPlane />
+            </button>
           </div>
         )}
       </div>
@@ -508,6 +516,14 @@ export default function Post({ post, onDelete, onPin, isPinned }) {
               placeholder="Write a comment... (type @ to mention)"
               onSubmit={handleComment}
             />
+            <button
+              className="comment-send-btn"
+              onClick={handleComment}
+              disabled={!commentText.trim()}
+              title="Send"
+            >
+              <FaPaperPlane />
+            </button>
           </div>
         </div>
       )}

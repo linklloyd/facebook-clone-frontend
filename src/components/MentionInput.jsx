@@ -118,6 +118,7 @@ export default function MentionInput({
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         autoFocus={autoFocus}
+        enterKeyHint="send"
       />
       {showDropdown && filtered.length > 0 && (
         <div className="mention-dropdown">
