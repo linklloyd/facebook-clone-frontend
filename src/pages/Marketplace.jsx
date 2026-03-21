@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   FaPlus,
@@ -79,7 +79,15 @@ export default function Marketplace() {
     setShowCreate(false);
   };
 
-  const handleSold = async (id) => {
+  const lockRef = useRef(false);
+  const withLock = useCallback((fn) => async (...args) => {
+    if (lockRef.current) return;
+    lockRef.current = true;
+    try { return await fn(...args); }
+    finally { lockRef.current = false; }
+  }, []);
+
+  const handleSold = withLock(async (id) => {
     try {
       const res = await api.put(`/marketplace/${id}/sold`);
       setItems(items.map((i) => (i._id === id ? res.data : i)));
@@ -87,9 +95,9 @@ export default function Marketplace() {
     } catch (err) {
       console.error(err);
     }
-  };
+  });
 
-  const handleDelete = async (id) => {
+  const handleDelete = withLock(async (id) => {
     if (!confirm("Delete this listing?")) return;
     try {
       await api.delete(`/marketplace/${id}`);
@@ -98,7 +106,7 @@ export default function Marketplace() {
     } catch (err) {
       console.error(err);
     }
-  };
+  });
 
   // Detail view
   if (selectedItem) {
@@ -161,7 +169,7 @@ export default function Marketplace() {
               {selectedItem.seller._id !== user?._id && (
                 <button
                   className="btn-primary mp-message-btn"
-                  onClick={async () => {
+                  onClick={withLock(async () => {
                     try {
                       const res = await api.post("/messages/conversations", { receiverId: selectedItem.seller._id });
                       navigate("/messenger", { state: { openConversation: res.data } });
@@ -169,7 +177,7 @@ export default function Marketplace() {
                       console.error(err);
                       navigate("/messenger");
                     }
-                  }}
+                  })}
                 >
                   Message Seller
                 </button>

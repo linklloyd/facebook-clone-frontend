@@ -1,6 +1,17 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { FaComment, FaTrash, FaThumbtack, FaReply, FaChevronLeft, FaChevronRight, FaTimes, FaPaperPlane } from "react-icons/fa";
+
+// Prevent double-click on async actions
+function useLock() {
+  const lock = useRef(false);
+  return useCallback((fn) => async (...args) => {
+    if (lock.current) return;
+    lock.current = true;
+    try { return await fn(...args); }
+    finally { lock.current = false; }
+  }, []);
+}
 import { format } from "timeago.js";
 import { useAuth } from "../context/AuthContext";
 import MentionInput from "./MentionInput";
@@ -25,6 +36,7 @@ function getReactionInfo(type) {
 
 /* ---- Comment component (used for both top-level and replies) ---- */
 function CommentItem({ c, postId, user, isReply, onDelete, onUpdate }) {
+  const guard = useLock();
   const [showReactionPicker, setShowReactionPicker] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [showReplyInput, setShowReplyInput] = useState(false);
@@ -39,7 +51,7 @@ function CommentItem({ c, postId, user, isReply, onDelete, onUpdate }) {
   );
   const myCommentReactionInfo = myCommentReaction ? getReactionInfo(myCommentReaction.type) : null;
 
-  const handleCommentReact = async (type) => {
+  const handleCommentReact = guard(async (type) => {
     setShowReactionPicker(false);
     try {
       const res = await api.put(`/posts/${postId}/comments/${c._id}/react`, { reaction: type });
@@ -47,7 +59,7 @@ function CommentItem({ c, postId, user, isReply, onDelete, onUpdate }) {
     } catch (err) {
       console.error(err);
     }
-  };
+  });
 
   const handleCommentLikeClick = () => {
     if (myCommentReaction) {
@@ -57,7 +69,7 @@ function CommentItem({ c, postId, user, isReply, onDelete, onUpdate }) {
     }
   };
 
-  const handleReply = async () => {
+  const handleReply = guard(async () => {
     if (!replyText.trim()) return;
     try {
       const res = await api.post(`/posts/${postId}/comments/${c._id}/replies`, {
@@ -70,7 +82,7 @@ function CommentItem({ c, postId, user, isReply, onDelete, onUpdate }) {
     } catch (err) {
       console.error(err);
     }
-  };
+  });
 
   const reactionSummary = commentReactions.reduce((acc, r) => {
     acc[r.type] = (acc[r.type] || 0) + 1;
@@ -306,6 +318,7 @@ function ImageLightbox({ images, startIdx, onClose }) {
 
 /* ---- Main Post component ---- */
 export default function Post({ post, onDelete, onPin, isPinned, initialShowComments }) {
+  const guard = useLock();
   const { user } = useAuth();
   const [reactions, setReactions] = useState(post.reactions || []);
   const [comments, setComments] = useState(post.comments || []);
@@ -333,7 +346,7 @@ export default function Post({ post, onDelete, onPin, isPinned, initialShowComme
     (sum, c) => sum + 1 + (c.replies?.length || 0), 0
   );
 
-  const handleReact = async (type) => {
+  const handleReact = guard(async (type) => {
     setShowPicker(false);
     try {
       const res = await api.put(`/posts/${post._id}/like`, { reaction: type });
@@ -341,7 +354,7 @@ export default function Post({ post, onDelete, onPin, isPinned, initialShowComme
     } catch (err) {
       console.error(err);
     }
-  };
+  });
 
   const handleLikeClick = () => {
     if (myReaction) handleReact(myReaction.type);
@@ -361,7 +374,7 @@ export default function Post({ post, onDelete, onPin, isPinned, initialShowComme
     hideTimeout.current = setTimeout(() => setShowPicker(false), 300);
   };
 
-  const handleComment = async () => {
+  const handleComment = guard(async () => {
     if (!commentText.trim()) return;
     try {
       const res = await api.post(`/posts/${post._id}/comments`, { text: commentText });
@@ -371,9 +384,9 @@ export default function Post({ post, onDelete, onPin, isPinned, initialShowComme
     } catch (err) {
       console.error(err);
     }
-  };
+  });
 
-  const handleDelete = async () => {
+  const handleDelete = guard(async () => {
     if (!window.confirm("Delete this post?")) return;
     try {
       await api.delete(`/posts/${post._id}`);
@@ -381,9 +394,9 @@ export default function Post({ post, onDelete, onPin, isPinned, initialShowComme
     } catch (err) {
       console.error(err);
     }
-  };
+  });
 
-  const handleDeleteComment = async (commentId) => {
+  const handleDeleteComment = guard(async (commentId) => {
     if (!window.confirm("Delete this comment?")) return;
     try {
       await api.delete(`/posts/${post._id}/comments/${commentId}`);
@@ -391,16 +404,16 @@ export default function Post({ post, onDelete, onPin, isPinned, initialShowComme
     } catch (err) {
       console.error(err);
     }
-  };
+  });
 
-  const handlePin = async () => {
+  const handlePin = guard(async () => {
     try {
       const res = await api.put(`/posts/${post._id}/pin`);
       onPin?.(post._id, res.data.pinned);
     } catch (err) {
       console.error(err);
     }
-  };
+  });
 
   return (
     <div className={`post-card ${isPinned ? "pinned-post" : ""}`}>

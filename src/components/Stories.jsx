@@ -236,6 +236,7 @@ function StoryCreator({ onClose, onCreated }) {
   };
 
   const handleCreate = async () => {
+    if (loading) return;
     if (!text && !storyImage) return;
     setLoading(true);
     try {

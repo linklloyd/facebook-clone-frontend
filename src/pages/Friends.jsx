@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { FaCheck, FaTimes, FaUserPlus, FaClock } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
@@ -28,21 +28,35 @@ export default function Friends() {
     setSuggestions(sugRes.data);
   };
 
+  const busyRef = useRef(new Set());
+  const guard = useCallback((key, fn) => async (...args) => {
+    if (busyRef.current.has(key)) return;
+    busyRef.current.add(key);
+    try { await fn(...args); }
+    finally { busyRef.current.delete(key); }
+  }, []);
+
   const handleAccept = async (id) => {
-    await api.put(`/users/friend-request/${id}/accept`);
-    setRequests(requests.filter((r) => r._id !== id));
-    const res = await api.get("/auth/me");
-    updateUser(res.data);
+    await guard(`accept-${id}`, async () => {
+      await api.put(`/users/friend-request/${id}/accept`);
+      setRequests(requests.filter((r) => r._id !== id));
+      const res = await api.get("/auth/me");
+      updateUser(res.data);
+    })();
   };
 
   const handleDecline = async (id) => {
-    await api.put(`/users/friend-request/${id}/decline`);
-    setRequests(requests.filter((r) => r._id !== id));
+    await guard(`decline-${id}`, async () => {
+      await api.put(`/users/friend-request/${id}/decline`);
+      setRequests(requests.filter((r) => r._id !== id));
+    })();
   };
 
   const handleSendRequest = async (userId) => {
-    await api.post(`/users/friend-request/${userId}`);
-    setPendingSent((prev) => new Set([...prev, userId]));
+    await guard(`send-${userId}`, async () => {
+      await api.post(`/users/friend-request/${userId}`);
+      setPendingSent((prev) => new Set([...prev, userId]));
+    })();
   };
 
   // Render friend requests section

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { FaPaperPlane, FaSearch, FaSmile, FaEdit, FaUsers, FaCheck, FaCheckDouble, FaArrowLeft, FaCog, FaTimes, FaSignOutAlt, FaCamera, FaImage } from "react-icons/fa";
 import { format } from "timeago.js";
 import EmojiPicker from "emoji-picker-react";
@@ -33,6 +33,7 @@ export default function Messenger() {
   const typingTimeoutRef = useRef();
   const groupPhotoRef = useRef();
   const chatImageRef = useRef();
+  const sendLock = useRef(false);
 
   useEffect(() => {
     api.get("/messages/conversations").then((r) => {
@@ -165,8 +166,10 @@ export default function Messenger() {
 
   const handleSend = async (e) => {
     e?.preventDefault();
+    if (sendLock.current) return;
     if (!newMessage.trim() && !chatImage) return;
     if (!currentChat) return;
+    sendLock.current = true;
     const receiverIds = getOtherIds(currentChat);
     socket?.emit("stopTyping", { conversationId: currentChat._id, receiverIds });
 
@@ -195,6 +198,7 @@ export default function Messenger() {
           : c
       )
     );
+    sendLock.current = false;
   };
 
   const handleTypingEvent = () => {

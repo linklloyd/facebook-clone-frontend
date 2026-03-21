@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   FaCamera,
@@ -87,7 +87,15 @@ export default function Profile() {
     setFriendStatus("none");
   };
 
-  const handleFriendAction = async () => {
+  const lockRef = useRef(false);
+  const withLock = useCallback((fn) => async (...args) => {
+    if (lockRef.current) return;
+    lockRef.current = true;
+    try { return await fn(...args); }
+    finally { lockRef.current = false; }
+  }, []);
+
+  const handleFriendAction = withLock(async () => {
     if (friendStatus === "none") {
       await api.post(`/users/friend-request/${id}`);
       setFriendStatus("pending_sent");
@@ -100,19 +108,19 @@ export default function Profile() {
       setFriendStatus("none");
       loadProfile();
     }
-  };
+  });
 
-  const handleMessage = async () => {
+  const handleMessage = withLock(async () => {
     const res = await api.post("/messages/conversations", { receiverId: id });
     navigate("/messenger");
-  };
+  });
 
-  const handleUpdateProfile = async () => {
+  const handleUpdateProfile = withLock(async () => {
     const res = await api.put("/users", editForm);
     setProfile(res.data);
     if (isMe) updateUser(res.data);
     setEditing(false);
-  };
+  });
 
   const handleFileSelected = (type, file) => {
     setCropImage(file);
