@@ -145,7 +145,15 @@ export default function Stories() {
             {(() => {
               const story = storyGroups[showViewer].stories[currentStoryIndex];
               return (
-                <div className="story-display" style={storyBg(story)}>
+                <div
+                  className="story-display"
+                  style={{
+                    ...storyBg(story),
+                    justifyContent:
+                      story.textPosition === "top" ? "flex-start" :
+                      story.textPosition === "bottom" ? "flex-end" : "center",
+                  }}
+                >
                   {story.text && (
                     <p
                       className="story-text"
@@ -156,9 +164,6 @@ export default function Stories() {
                         textAlign: story.textAlign || "center",
                         fontWeight: story.fontWeight || "bold",
                         fontStyle: story.fontStyle || "normal",
-                        alignSelf:
-                          story.textPosition === "top" ? "flex-start" :
-                          story.textPosition === "bottom" ? "flex-end" : "center",
                       }}
                     >
                       {story.text}
@@ -270,7 +275,15 @@ function StoryCreator({ onClose, onCreated }) {
         </div>
 
         {/* Live preview */}
-        <div className="story-preview" style={previewBg()}>
+        <div
+          className="story-preview"
+          style={{
+            ...previewBg(),
+            justifyContent:
+              textPosition === "top" ? "flex-start" :
+              textPosition === "bottom" ? "flex-end" : "center",
+          }}
+        >
           {imagePreview && (
             <button className="story-remove-img" onClick={removeImage}>
               <FaTimes />
@@ -286,9 +299,6 @@ function StoryCreator({ onClose, onCreated }) {
                 textAlign,
                 fontWeight,
                 fontStyle,
-                alignSelf:
-                  textPosition === "top" ? "flex-start" :
-                  textPosition === "bottom" ? "flex-end" : "center",
               }}
             >
               {text}
