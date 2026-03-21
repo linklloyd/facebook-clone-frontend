@@ -1385,6 +1385,31 @@ html.dark .btn-pending {
   background: none;
 }
 
+/* ===== POST VIEW ===== */
+.post-view-page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 76px 16px 20px;
+}
+.post-view-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.post-view-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #1877f2;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 8px 0;
+}
+.post-view-back:hover {
+  text-decoration: underline;
+}
+
 /* ===== STORIES ===== */
 .stories-container {
   display: flex;

@@ -9,6 +9,7 @@ import Messenger from "./pages/Messenger";
 import Friends from "./pages/Friends";
 import Activity from "./pages/Activity";
 import Marketplace from "./pages/Marketplace";
+import PostView from "./pages/PostView";
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -84,6 +85,15 @@ export default function App() {
             <PrivateRoute>
               <Navbar />
               <Activity />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/post/:id"
+          element={
+            <PrivateRoute>
+              <Navbar />
+              <PostView />
             </PrivateRoute>
           }
         />

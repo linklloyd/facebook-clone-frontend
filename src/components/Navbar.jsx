@@ -214,8 +214,10 @@ export default function Navbar() {
                     className={`notif-item ${!n.read ? "unread" : ""}`}
                     onClick={() => {
                       setShowNotifications(false);
-                      if (n.type === "friend_request") {
+                      if (n.type === "friend_request" || n.type === "friend_accepted") {
                         navigate("/friends");
+                      } else if (n.reference && ["like_post", "comment_post", "like_comment", "mention_post", "mention_comment"].includes(n.type)) {
+                        navigate(`/post/${n.reference}`);
                       } else {
                         navigate(`/profile/${n.sender._id}`);
                       }
