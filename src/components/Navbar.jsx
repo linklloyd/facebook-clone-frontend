@@ -228,7 +228,12 @@ export default function Navbar() {
                       alt=""
                       className="avatar-small"
                     />
-                    <span>{getNotifText(n)}</span>
+                    <div className="notif-text-wrapper">
+                      <span>{getNotifText(n)}</span>
+                      {n.commentPreview && (
+                        <span className="notif-comment-preview">"{n.commentPreview}"</span>
+                      )}
+                    </div>
                   </div>
                 ))
               )}

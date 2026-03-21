@@ -11,6 +11,8 @@ import {
   FaUserTimes,
   FaEdit,
   FaFacebookMessenger,
+  FaLock,
+  FaGlobe,
 } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import CreatePost from "../components/CreatePost";
@@ -49,6 +51,7 @@ export default function Profile() {
       hometown: res.data.hometown || "",
       workplace: res.data.workplace || "",
       relationship: res.data.relationship || "",
+      isPublicProfile: res.data.isPublicProfile || false,
     });
   };
 
@@ -282,6 +285,13 @@ export default function Profile() {
         </div>
 
         <div className="profile-right-col">
+          {profile.isPrivate && !isMe && (
+            <div className="private-profile-msg">
+              <FaLock size={24} />
+              <h3>This profile is private</h3>
+              <p>Add {profile.firstName} as a friend to see their posts.</p>
+            </div>
+          )}
           {isMe && <CreatePost onPostCreated={(p) => setPosts([{ ...p, comments: [] }, ...posts])} />}
           {/* Pinned post first */}
           {profile.pinnedPost && posts.find((p) => p._id === profile.pinnedPost) && (
@@ -385,6 +395,24 @@ export default function Profile() {
                 <option>Married</option>
                 <option>Complicated</option>
               </select>
+              <label>Profile Privacy</label>
+              <div
+                className="privacy-toggle"
+                onClick={() =>
+                  setEditForm({ ...editForm, isPublicProfile: !editForm.isPublicProfile })
+                }
+              >
+                <div className={`toggle-switch ${editForm.isPublicProfile ? "on" : ""}`}>
+                  <div className="toggle-knob" />
+                </div>
+                <span>
+                  {editForm.isPublicProfile ? (
+                    <><FaGlobe /> Public — anyone can see your posts</>
+                  ) : (
+                    <><FaLock /> Private — only friends can see your posts</>
+                  )}
+                </span>
+              </div>
               <button className="btn-primary" onClick={handleUpdateProfile}>
                 Save Changes
               </button>
