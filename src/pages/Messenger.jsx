@@ -5,6 +5,7 @@ import EmojiPicker from "emoji-picker-react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
+import { ConversationSkeleton } from "../components/Skeleton";
 import api from "../utils/api";
 
 export default function Messenger() {
@@ -12,6 +13,7 @@ export default function Messenger() {
   const { socket, onlineUsers, markConvRead } = useSocket();
   const location = useLocation();
   const [conversations, setConversations] = useState([]);
+  const [convLoading, setConvLoading] = useState(true);
   const [currentChat, setCurrentChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -38,6 +40,7 @@ export default function Messenger() {
   useEffect(() => {
     api.get("/messages/conversations").then((r) => {
       setConversations(r.data);
+      setConvLoading(false);
       // If navigated from marketplace with a conversation to open
       if (location.state?.openConversation) {
         const conv = location.state.openConversation;
@@ -344,7 +347,7 @@ export default function Messenger() {
           <input placeholder="Search Messenger" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
         </div>
         <div className="conversation-list">
-          {filteredConversations.map((conv) => {
+          {convLoading ? <ConversationSkeleton count={8} /> : filteredConversations.map((conv) => {
             const other = getOtherUser(conv);
             const isOnline = conv.isGroup ? false : onlineUsers.includes(other?._id);
             return (
