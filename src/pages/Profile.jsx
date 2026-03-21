@@ -15,15 +15,18 @@ import {
   FaGlobe,
 } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import CreatePost from "../components/CreatePost";
 import Post from "../components/Post";
 import ImageCropper from "../components/ImageCropper";
+import { ProfileSkeleton } from "../components/Skeleton";
 import api from "../utils/api";
 
 export default function Profile() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user: me, updateUser } = useAuth();
+  const { t } = useLanguage();
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [editing, setEditing] = useState(false);
@@ -145,7 +148,7 @@ export default function Profile() {
     if (isMe) updateUser(res.data);
   };
 
-  if (!profile) return <div className="loading-spinner"><div className="spinner-circle" /></div>;
+  if (!profile) return <ProfileSkeleton />;
 
   return (
     <div className="profile-page">

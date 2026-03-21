@@ -3,14 +3,17 @@ import { Link } from "react-router-dom";
 import { FaUserFriends, FaFacebookMessenger, FaBookmark, FaUsers, FaBolt, FaStore } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
+import { useLanguage } from "../context/LanguageContext";
 import CreatePost from "../components/CreatePost";
 import Post from "../components/Post";
 import Stories from "../components/Stories";
+import { PostSkeleton } from "../components/Skeleton";
 import api from "../utils/api";
 
 export default function Home() {
   const { user } = useAuth();
   const { onlineUsers } = useSocket();
+  const { t } = useLanguage();
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -63,23 +66,23 @@ export default function Home() {
         </Link>
         <Link to="/friends" className="sidebar-item">
           <FaUserFriends className="sidebar-icon" />
-          <span>Friends</span>
+          <span>{t("friends")}</span>
         </Link>
         <Link to="/messenger" className="sidebar-item">
           <FaFacebookMessenger className="sidebar-icon" />
-          <span>Messenger</span>
+          <span>{t("messenger")}</span>
         </Link>
         <Link to="/friends" className="sidebar-item">
           <FaUsers className="sidebar-icon" />
-          <span>Find Friends</span>
+          <span>{t("findFriends")}</span>
         </Link>
         <Link to="/activity" className="sidebar-item">
           <FaBolt className="sidebar-icon" />
-          <span>Activity Feed</span>
+          <span>{t("activityFeed")}</span>
         </Link>
         <Link to="/marketplace" className="sidebar-item">
           <FaStore className="sidebar-icon" />
-          <span>Marketplace</span>
+          <span>{t("marketplace")}</span>
         </Link>
       </div>
 
@@ -95,15 +98,15 @@ export default function Home() {
                 <div className="shimmer-line" style={{ width: "40%" }} />
               </div>
             </div>
-            <span className="creating-post-text">Creating your post...</span>
+            <span className="creating-post-text">{t("creatingPost")}</span>
           </div>
         )}
         {loading ? (
-          <div className="loading-spinner"><div className="spinner-circle" /></div>
+          <PostSkeleton count={3} />
         ) : posts.length === 0 ? (
           <div className="empty-feed">
-            <h3>Welcome to Tlacobook!</h3>
-            <p>Add friends to see their posts in your feed.</p>
+            <h3>{t("welcomeTitle")}</h3>
+            <p>{t("welcomeText")}</p>
           </div>
         ) : (
           <>
@@ -119,7 +122,7 @@ export default function Home() {
                   loadPosts(next);
                 }}
               >
-                Load more
+                {t("loadMore")}
               </button>
             )}
           </>
@@ -129,7 +132,7 @@ export default function Home() {
       <div className="home-right">
         {suggestions.length > 0 && (
           <div className="sidebar-section">
-            <h4>People you may know</h4>
+            <h4>{t("peopleYouMayKnow")}</h4>
             {suggestions.map((s) => (
               <Link key={s._id} to={`/profile/${s._id}`} className="suggestion-item">
                 <img
@@ -143,9 +146,9 @@ export default function Home() {
           </div>
         )}
         <div className="sidebar-section">
-          <h4>Contacts</h4>
+          <h4>{t("contacts")}</h4>
           {onlineFriends.length === 0 ? (
-            <p className="empty-text">No friends online</p>
+            <p className="empty-text">{t("noFriendsOnline")}</p>
           ) : (
             onlineFriends.map((f) => (
               <Link key={f._id} to={`/profile/${f._id}`} className="contact-item">

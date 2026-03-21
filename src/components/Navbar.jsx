@@ -17,12 +17,14 @@ import {
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import { useTheme } from "../context/ThemeContext";
+import { useLanguage } from "../context/LanguageContext";
 import api from "../utils/api";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { socket, unreadMessages } = useSocket();
   const { dark, toggleDark } = useTheme();
+  const { t, lang, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
@@ -95,8 +97,19 @@ export default function Navbar() {
   };
 
   const getNotifText = (n) => {
-    if (!n.sender) return "Someone interacted with your content";
+    if (!n.sender) return lang === "es" ? "Alguien interactuó con tu contenido" : "Someone interacted with your content";
     const name = `${n.sender.firstName} ${n.sender.lastName}`;
+    if (lang === "es") {
+      switch (n.type) {
+        case "like_post": return `A ${name} le gustó tu publicación`;
+        case "comment_post": return `${name} comentó en tu publicación`;
+        case "friend_request": return `${name} te envió una solicitud de amistad`;
+        case "friend_accepted": return `${name} aceptó tu solicitud de amistad`;
+        case "mention_post": return `${name} te mencionó en una publicación`;
+        case "mention_comment": return `${name} te mencionó en un comentario`;
+        default: return `${name} interactuó con tu contenido`;
+      }
+    }
     switch (n.type) {
       case "like_post": return `${name} liked your post`;
       case "comment_post": return `${name} commented on your post`;
@@ -123,7 +136,7 @@ export default function Navbar() {
         <div className="nav-search" ref={searchRef}>
           <FaSearch className="search-icon" />
           <input
-            placeholder="Search Tlacobook"
+            placeholder={t("search")}
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
             onFocus={() => (searchResults.users.length || searchResults.posts.length) && setShowSearch(true)}
@@ -209,9 +222,9 @@ export default function Navbar() {
           </button>
           {showNotifications && (
             <div className="dropdown notifications-dropdown">
-              <h3>Notifications</h3>
+              <h3>{t("notifications")}</h3>
               {notifications.length === 0 ? (
-                <p className="empty-text">No notifications</p>
+                <p className="empty-text">{t("noNotifications")}</p>
               ) : (
                 notifications.filter((n) => n.sender).map((n) => (
                   <div
@@ -268,12 +281,29 @@ export default function Navbar() {
                 className="menu-item"
                 onClick={() => setShowMenu(false)}
               >
-                <FaUser /> My Profile
+                <FaUser /> {lang === "es" ? "Mi Perfil" : "My Profile"}
               </Link>
               <button className="menu-item" onClick={toggleDark}>
                 {dark ? <FaSun /> : <FaMoon />}
-                {dark ? "Light Mode" : "Dark Mode"}
+                {dark ? (lang === "es" ? "Modo Claro" : "Light Mode") : t("darkMode")}
               </button>
+              <div className="menu-item lang-menu-item">
+                <span>{t("language")}</span>
+                <div className="lang-selector">
+                  <button
+                    className={`lang-btn ${lang === "en" ? "active" : ""}`}
+                    onClick={() => setLanguage("en")}
+                  >
+                    EN
+                  </button>
+                  <button
+                    className={`lang-btn ${lang === "es" ? "active" : ""}`}
+                    onClick={() => setLanguage("es")}
+                  >
+                    ES
+                  </button>
+                </div>
+              </div>
               <button
                 className="menu-item"
                 onClick={() => {
@@ -281,7 +311,7 @@ export default function Navbar() {
                   navigate("/login");
                 }}
               >
-                <FaSignOutAlt /> Log Out
+                <FaSignOutAlt /> {t("logout")}
               </button>
             </div>
           )}
@@ -296,7 +326,7 @@ export default function Navbar() {
               <FaSearch />
             </button>
             <input
-              placeholder="Search Tlacobook"
+              placeholder={t("search")}
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               autoFocus

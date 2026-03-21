@@ -2,20 +2,23 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaThumbsUp, FaComment, FaUserCheck, FaFileAlt } from "react-icons/fa";
 import { format } from "timeago.js";
+import { useLanguage } from "../context/LanguageContext";
+import { ActivitySkeleton } from "../components/Skeleton";
 import api from "../utils/api";
 
-const ICONS = {
-  like_post: { icon: FaThumbsUp, color: "#1877f2", text: "liked a post" },
-  comment_post: { icon: FaComment, color: "#44bd63", text: "commented on a post" },
-  friend_accepted: { icon: FaUserCheck, color: "#1877f2", text: "became friends with" },
-  new_post: { icon: FaFileAlt, color: "#f7b125", text: "shared a new post" },
-};
-
 export default function Activity() {
+  const { t } = useLanguage();
   const [feed, setFeed] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+
+  const ICONS = {
+    like_post: { icon: FaThumbsUp, color: "#1877f2", text: t("likedAPost") },
+    comment_post: { icon: FaComment, color: "#44bd63", text: t("commentedOnAPost") },
+    friend_accepted: { icon: FaUserCheck, color: "#1877f2", text: t("becameFriendsWith") },
+    new_post: { icon: FaFileAlt, color: "#f7b125", text: t("sharedANewPost") },
+  };
 
   useEffect(() => {
     loadActivity(1);
@@ -41,14 +44,16 @@ export default function Activity() {
   return (
     <div className="activity-page">
       <div className="activity-container">
-        <h2>Activity Feed</h2>
-        <p className="activity-subtitle">See what your friends have been up to</p>
+        <h2>{t("activityTitle")}</h2>
+        <p className="activity-subtitle">{t("activitySubtitle")}</p>
 
         {loading ? (
-          <div className="loading-spinner"><div className="spinner-circle" /></div>
+          <div className="activity-list">
+            <ActivitySkeleton count={6} />
+          </div>
         ) : feed.length === 0 ? (
           <div className="empty-feed">
-            <p>No activity yet. Add friends to see their activity!</p>
+            <p>{t("noActivity")}</p>
           </div>
         ) : (
           <div className="activity-list">
@@ -106,7 +111,7 @@ export default function Activity() {
               loadActivity(next);
             }}
           >
-            Load more
+            {t("loadMore")}
           </button>
         )}
       </div>

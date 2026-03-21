@@ -10,8 +10,10 @@ import {
   FaChevronLeft,
 } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
+import { useLanguage } from "../context/LanguageContext";
 import api from "../utils/api";
 import { compressImage } from "../utils/imageUtils";
+import { MarketplaceSkeleton } from "../components/Skeleton";
 
 const CATEGORIES = [
   "All",
@@ -29,6 +31,7 @@ const CONDITIONS = ["New", "Like New", "Good", "Used"];
 
 export default function Marketplace() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -257,9 +260,9 @@ export default function Marketplace() {
         )}
 
         {loading ? (
-          <div className="loading-spinner"><div className="spinner-circle" /></div>
+          <MarketplaceSkeleton count={6} />
         ) : items.length === 0 ? (
-          <p className="empty-text">No listings found. Be the first to sell something!</p>
+          <p className="empty-text">{t("noListings")}</p>
         ) : (
           <div className="marketplace-grid">
             {items.map((item) => (
