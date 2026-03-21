@@ -45,7 +45,12 @@ export default function Navbar() {
   useEffect(() => {
     if (!socket) return;
     const handler = (notif) => {
-      setNotifications((prev) => [notif, ...prev]);
+      setNotifications((prev) => {
+        // Deduplicate by _id — replace if exists, otherwise prepend
+        const exists = prev.some((n) => n._id === notif._id);
+        if (exists) return prev.map((n) => (n._id === notif._id ? notif : n));
+        return [notif, ...prev];
+      });
       setUnreadCount((c) => c + 1);
     };
     socket.on("notification", handler);
