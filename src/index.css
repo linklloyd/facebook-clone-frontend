@@ -160,9 +160,81 @@ html.dark .btn-pending {
 }
 
 .loading-spinner {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 40px;
   color: #65676b;
+}
+
+/* Spinner circle */
+.spinner-circle {
+  width: 36px;
+  height: 36px;
+  border: 4px solid #e4e6eb;
+  border-top-color: #1877f2;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Inline spinner (for buttons) */
+.spinner {
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Creating post placeholder */
+.creating-post-placeholder {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.creating-post-shimmer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.shimmer-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #e4e6eb 25%, #f0f2f5 50%, #e4e6eb 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  flex-shrink: 0;
+}
+.shimmer-lines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.shimmer-line {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #e4e6eb 25%, #f0f2f5 50%, #e4e6eb 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+.creating-post-text {
+  text-align: center;
+  font-size: 13px;
+  color: #65676b;
+  font-weight: 500;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 .empty-text {
@@ -4318,6 +4390,22 @@ html.dark .friend-card-info {
 /* Post submit disabled dark */
 html.dark .post-submit:disabled {
   background: var(--surface2);
+  color: var(--text-secondary);
+}
+html.dark .spinner-circle {
+  border-color: var(--surface2);
+  border-top-color: #1877f2;
+}
+html.dark .creating-post-placeholder {
+  background: var(--surface);
+}
+html.dark .shimmer-avatar,
+html.dark .shimmer-line {
+  background: linear-gradient(90deg, var(--surface2) 25%, var(--hover) 50%, var(--surface2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+html.dark .creating-post-text {
   color: var(--text-secondary);
 }
 

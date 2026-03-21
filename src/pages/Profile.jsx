@@ -137,7 +137,7 @@ export default function Profile() {
     if (isMe) updateUser(res.data);
   };
 
-  if (!profile) return <div className="loading-spinner">Loading...</div>;
+  if (!profile) return <div className="loading-spinner"><div className="spinner-circle" /></div>;
 
   return (
     <div className="profile-page">

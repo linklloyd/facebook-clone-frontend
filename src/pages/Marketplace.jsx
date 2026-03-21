@@ -249,7 +249,7 @@ export default function Marketplace() {
         )}
 
         {loading ? (
-          <p className="empty-text">Loading...</p>
+          <div className="loading-spinner"><div className="spinner-circle" /></div>
         ) : items.length === 0 ? (
           <p className="empty-text">No listings found. Be the first to sell something!</p>
         ) : (

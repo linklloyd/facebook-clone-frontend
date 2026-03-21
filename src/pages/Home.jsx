@@ -16,6 +16,7 @@ export default function Home() {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
   const [suggestions, setSuggestions] = useState([]);
+  const [isPosting, setIsPosting] = useState(false);
 
   useEffect(() => {
     loadPosts(1);
@@ -84,9 +85,21 @@ export default function Home() {
 
       <div className="home-center">
         <Stories />
-        <CreatePost onPostCreated={handlePostCreated} />
+        <CreatePost onPostCreated={handlePostCreated} onPostingChange={setIsPosting} />
+        {isPosting && (
+          <div className="creating-post-placeholder">
+            <div className="creating-post-shimmer">
+              <div className="shimmer-avatar" />
+              <div className="shimmer-lines">
+                <div className="shimmer-line" style={{ width: "60%" }} />
+                <div className="shimmer-line" style={{ width: "40%" }} />
+              </div>
+            </div>
+            <span className="creating-post-text">Creating your post...</span>
+          </div>
+        )}
         {loading ? (
-          <div className="loading-spinner">Loading...</div>
+          <div className="loading-spinner"><div className="spinner-circle" /></div>
         ) : posts.length === 0 ? (
           <div className="empty-feed">
             <h3>Welcome to Tlacobook!</h3>

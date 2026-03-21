@@ -13,13 +13,13 @@ import PostView from "./pages/PostView";
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return <div className="loading-screen">Loading...</div>;
+  if (loading) return <div className="loading-screen"><div className="spinner-circle" /></div>;
   return user ? children : <Navigate to="/login" />;
 }
 
 function PublicRoute({ children }) {
   const { user, loading } = useAuth();
-  if (loading) return <div className="loading-screen">Loading...</div>;
+  if (loading) return <div className="loading-screen"><div className="spinner-circle" /></div>;
   return !user ? children : <Navigate to="/" />;
 }
 

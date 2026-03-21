@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { FaPhotoVideo, FaSmile, FaTimes, FaGripVertical, FaPlay } from "react-icons/fa";
+import { FaPhotoVideo, FaSmile, FaTimes, FaGripVertical, FaPlay, FaSpinner } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import MentionInput from "./MentionInput";
 import api from "../utils/api";
@@ -10,7 +10,7 @@ const FEELINGS = [
   "thankful", "crazy", "cool", "cachondo"
 ];
 
-export default function CreatePost({ onPostCreated }) {
+export default function CreatePost({ onPostCreated, onPostingChange }) {
   const { user } = useAuth();
   const [text, setText] = useState("");
   const [media, setMedia] = useState([]); // [{ id, file, preview, type: 'image'|'video' }]
@@ -129,15 +129,15 @@ export default function CreatePost({ onPostCreated }) {
   };
 
   const handleSubmit = async () => {
+    if (loading) return; // Prevent double-click
     if (!text.trim() && media.length === 0) return;
     setLoading(true);
+    onPostingChange?.(true);
     try {
       const formData = new FormData();
       if (text) formData.append("text", text);
       if (feeling) formData.append("feeling", feeling);
-      // Append media files in order (images + videos)
       media.forEach((m) => formData.append("media", m.file));
-      // Send media types so backend knows which are videos
       formData.append("mediaTypes", JSON.stringify(media.map((m) => m.type)));
       const res = await api.post("/posts", formData);
       onPostCreated(res.data);
@@ -149,6 +149,7 @@ export default function CreatePost({ onPostCreated }) {
       console.error(err);
     }
     setLoading(false);
+    onPostingChange?.(false);
   };
 
   return (
@@ -240,7 +241,7 @@ export default function CreatePost({ onPostCreated }) {
           onClick={handleSubmit}
           disabled={loading || (!text.trim() && media.length === 0)}
         >
-          {loading ? "Posting..." : "Post"}
+          {loading ? <><FaSpinner className="spinner" /> Posting...</> : "Post"}
         </button>
       </div>
       {showFeelings && (

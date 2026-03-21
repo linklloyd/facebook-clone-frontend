@@ -1,17 +1,10 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "../context/AuthContext";
 
 /**
  * MentionInput — a textarea/input that supports @mentions.
  * When the user types @, shows a dropdown of friends to pick from.
  * Stores mentions as @[First Last](userId) in the raw text.
- * Props:
- *   value, onChange — controlled text value
- *   placeholder — input placeholder
- *   onSubmit — called on Enter key
- *   multiline — use textarea instead of input
- *   className — extra class name
- *   autoFocus — auto focus on mount
  */
 export default function MentionInput({
   value,
@@ -28,6 +21,7 @@ export default function MentionInput({
   const [mentionStart, setMentionStart] = useState(-1);
   const [selectedIdx, setSelectedIdx] = useState(0);
   const inputRef = useRef();
+  const isComposing = useRef(false);
 
   const friends = user?.friends || [];
   const filtered = friends.filter((f) => {
@@ -41,13 +35,11 @@ export default function MentionInput({
     const cursorPos = e.target.selectionStart;
     onChange(text);
 
-    // Check if we're in a mention context
     const textBefore = text.slice(0, cursorPos);
     const atIdx = textBefore.lastIndexOf("@");
 
     if (atIdx !== -1) {
       const afterAt = textBefore.slice(atIdx + 1);
-      // Only show dropdown if @ is at start or after a space, and no space break in query
       const charBefore = atIdx > 0 ? text[atIdx - 1] : " ";
       if ((charBefore === " " || charBefore === "\n" || atIdx === 0) && !afterAt.includes("\n")) {
         setShowDropdown(true);
@@ -68,7 +60,6 @@ export default function MentionInput({
     onChange(newText);
     setShowDropdown(false);
 
-    // Refocus
     setTimeout(() => {
       if (inputRef.current) {
         const pos = before.length + mention.length;
@@ -100,8 +91,17 @@ export default function MentionInput({
         return;
       }
     }
-    if (e.key === "Enter" && !e.shiftKey && !showDropdown) {
+    // Submit on Enter (desktop + mobile fallback)
+    if (e.key === "Enter" && !e.shiftKey && !showDropdown && !isComposing.current) {
       e.preventDefault();
+      onSubmit?.();
+    }
+  };
+
+  // Form submit handles mobile "Go"/"Send" button which may not fire keyDown
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    if (!showDropdown) {
       onSubmit?.();
     }
   };
@@ -109,7 +109,7 @@ export default function MentionInput({
   const Tag = multiline ? "textarea" : "input";
 
   return (
-    <div className="mention-input-wrapper">
+    <form className="mention-input-wrapper" onSubmit={handleFormSubmit}>
       <Tag
         ref={inputRef}
         className={className || ""}
@@ -117,6 +117,8 @@ export default function MentionInput({
         value={value}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
+        onCompositionStart={() => { isComposing.current = true; }}
+        onCompositionEnd={() => { isComposing.current = false; }}
         autoFocus={autoFocus}
         enterKeyHint="send"
       />
@@ -141,6 +143,6 @@ export default function MentionInput({
           ))}
         </div>
       )}
-    </div>
+    </form>
   );
 }

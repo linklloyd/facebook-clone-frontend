@@ -45,7 +45,7 @@ export default function Activity() {
         <p className="activity-subtitle">See what your friends have been up to</p>
 
         {loading ? (
-          <div className="loading-spinner">Loading...</div>
+          <div className="loading-spinner"><div className="spinner-circle" /></div>
         ) : feed.length === 0 ? (
           <div className="empty-feed">
             <p>No activity yet. Add friends to see their activity!</p>

@@ -26,7 +26,7 @@ export default function PostView() {
     window.location.href = "/";
   };
 
-  if (loading) return <div className="post-view-page"><p className="empty-text">Loading...</p></div>;
+  if (loading) return <div className="post-view-page"><div className="loading-spinner"><div className="spinner-circle" /></div></div>;
   if (error) return (
     <div className="post-view-page">
       <div className="post-view-container">
