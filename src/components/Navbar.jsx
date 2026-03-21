@@ -222,7 +222,7 @@ export default function Navbar() {
                       if (n.type === "friend_request" || n.type === "friend_accepted") {
                         navigate("/friends");
                       } else if (n.reference && ["like_post", "comment_post", "like_comment", "mention_post", "mention_comment"].includes(n.type)) {
-                        navigate(`/post/${n.reference}`);
+                        navigate(`/post/${n.reference}`, { state: { notifType: n.type } });
                       } else {
                         navigate(`/profile/${n.sender._id}`);
                       }

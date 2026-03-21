@@ -305,12 +305,12 @@ function ImageLightbox({ images, startIdx, onClose }) {
 }
 
 /* ---- Main Post component ---- */
-export default function Post({ post, onDelete, onPin, isPinned }) {
+export default function Post({ post, onDelete, onPin, isPinned, initialShowComments }) {
   const { user } = useAuth();
   const [reactions, setReactions] = useState(post.reactions || []);
   const [comments, setComments] = useState(post.comments || []);
   const [commentText, setCommentText] = useState("");
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(initialShowComments || false);
   const [showPicker, setShowPicker] = useState(false);
   const hoverTimeout = useRef(null);
   const hideTimeout = useRef(null);

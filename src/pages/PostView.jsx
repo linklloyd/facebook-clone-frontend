@@ -1,14 +1,18 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { FaChevronLeft } from "react-icons/fa";
 import Post from "../components/Post";
 import api from "../utils/api";
 
 export default function PostView() {
   const { id } = useParams();
+  const location = useLocation();
   const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const notifType = location.state?.notifType;
+  const showComments = ["comment_post", "like_comment", "mention_comment"].includes(notifType);
 
   useEffect(() => {
     api
@@ -19,7 +23,6 @@ export default function PostView() {
   }, [id]);
 
   const handleDelete = () => {
-    // After deleting, go back home
     window.location.href = "/";
   };
 
@@ -37,7 +40,13 @@ export default function PostView() {
     <div className="post-view-page">
       <div className="post-view-container">
         <Link to="/" className="post-view-back"><FaChevronLeft /> Back to Feed</Link>
-        {post && <Post post={post} onDelete={handleDelete} />}
+        {post && (
+          <Post
+            post={post}
+            onDelete={handleDelete}
+            initialShowComments={showComments}
+          />
+        )}
       </div>
     </div>
   );
