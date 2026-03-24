@@ -49,6 +49,8 @@ export default function Profile() {
     const res = await api.get(`/users/${id}`);
     setProfile(res.data);
     setEditForm({
+      firstName: res.data.firstName || "",
+      lastName: res.data.lastName || "",
       bio: res.data.bio || "",
       city: res.data.city || "",
       hometown: res.data.hometown || "",
@@ -360,6 +362,28 @@ export default function Profile() {
               <button onClick={() => setEditing(false)}>&times;</button>
             </div>
             <div className="modal-body">
+              <div className="edit-name-row">
+                <div>
+                  <label>First Name</label>
+                  <input
+                    value={editForm.firstName}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, firstName: e.target.value })
+                    }
+                    placeholder="First name"
+                  />
+                </div>
+                <div>
+                  <label>Last Name</label>
+                  <input
+                    value={editForm.lastName}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, lastName: e.target.value })
+                    }
+                    placeholder="Last name"
+                  />
+                </div>
+              </div>
               <label>Bio</label>
               <textarea
                 value={editForm.bio}

@@ -2094,6 +2094,17 @@ html.dark .poll-footer {
   min-height: 80px;
 }
 
+.edit-name-row {
+  display: flex;
+  gap: 12px;
+}
+.edit-name-row > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .file-upload-btn {
   padding: 8px 16px;
   background: #e4e6eb;
